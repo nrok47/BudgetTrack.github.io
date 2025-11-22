@@ -1,5 +1,5 @@
 import { Project } from './types';
-import { STORAGE_KEY, getCurrentFiscalYear } from './constants';
+import { STORAGE_KEY } from './constants';
 
 /**
  * Parse CSV content to Project array
@@ -8,7 +8,7 @@ export const parseCSV = (csvContent: string): Project[] => {
   const lines = csvContent.trim().split('\n');
   if (lines.length <= 1) return [];
   
-  const headers = lines[0].split(',');
+  // Skip header line
   const projects: Project[] = [];
   
   for (let i = 1; i < lines.length; i++) {

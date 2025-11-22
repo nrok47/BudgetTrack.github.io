@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { X, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, Calendar } from 'lucide-react';
 import { Project } from '../types';
 import { getCurrentFiscalYear, THAI_MONTHS } from '../constants';
 import { fiscalMonthToCalendarMonth, getDaysInMonth, isDateInRange } from '../utils';

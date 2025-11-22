@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Download, RefreshCw, Moon, Sun, Filter, ArrowUpDown } from 'lucide-react';
 import { Project } from './types';
 import { PROJECT_GROUPS } from './constants';
