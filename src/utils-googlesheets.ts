@@ -35,14 +35,16 @@ export const loadFromGoogleSheets = async (): Promise<Project[]> => {
  */
 export const saveToGoogleSheets = async (projects: Project[]): Promise<boolean> => {
   try {
-    // Use GET with data as query parameter for Google Apps Script
-    const params = new URLSearchParams({
-      action: 'saveProjects',
-      data: JSON.stringify({ projects })
-    });
-    
-    await fetch(`${GOOGLE_SHEETS_API}?${params.toString()}`, {
-      method: 'GET',
+    await fetch(GOOGLE_SHEETS_API, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ 
+        action: 'saveProjects',
+        projects 
+      }),
       redirect: 'follow',
     });
     
