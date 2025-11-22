@@ -2,7 +2,13 @@ import { useState, useEffect } from 'react';
 import { Plus, Download, RefreshCw, Moon, Sun, Filter, ArrowUpDown } from 'lucide-react';
 import { Project } from './types';
 import { PROJECT_GROUPS } from './constants';
-import { loadFromLocalStorage, saveToLocalStorage, loadFromCSV, downloadCSV } from './utils';
+import { 
+  loadFromGoogleSheets, 
+  saveToGoogleSheets, 
+  loadFromLocalStorage, 
+  saveToLocalStorage, 
+  downloadCSV 
+} from './utils-googlesheets';
 import { ProjectGanttChart } from './components/ProjectGanttChart';
 import { ProjectModal } from './components/ProjectModal';
 import { CalendarModal } from './components/CalendarModal';
@@ -23,17 +29,27 @@ function App() {
     const loadData = async () => {
       setIsLoading(true);
       
-      // Try to load from localStorage first
-      const savedProjects = loadFromLocalStorage();
-      
-      if (savedProjects && savedProjects.length > 0) {
-        setProjects(savedProjects);
-      } else {
-        // Load from CSV if localStorage is empty
-        const csvProjects = await loadFromCSV();
-        setProjects(csvProjects);
-        if (csvProjects.length > 0) {
-          saveToLocalStorage(csvProjects);
+      try {
+        // Try to load from Google Sheets first
+        const googleProjects = await loadFromGoogleSheets();
+        
+        if (googleProjects && googleProjects.length > 0) {
+          setProjects(googleProjects);
+          saveToLocalStorage(googleProjects); // Backup to localStorage
+        } else {
+          // Fallback to localStorage
+          const savedProjects = loadFromLocalStorage();
+          if (savedProjects && savedProjects.length > 0) {
+            setProjects(savedProjects);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading from Google Sheets:', error);
+        
+        // Fallback to localStorage
+        const savedProjects = loadFromLocalStorage();
+        if (savedProjects && savedProjects.length > 0) {
+          setProjects(savedProjects);
         }
       }
       
@@ -43,10 +59,14 @@ function App() {
     loadData();
   }, []);
 
-  // Auto-save to localStorage whenever projects change
+  // Auto-save to both localStorage and Google Sheets whenever projects change
   useEffect(() => {
     if (!isLoading && projects.length > 0) {
       saveToLocalStorage(projects);
+      // Save to Google Sheets asynchronously (don't wait)
+      saveToGoogleSheets(projects).catch(err => {
+        console.error('Failed to sync with Google Sheets:', err);
+      });
     }
   }, [projects, isLoading]);
 
@@ -98,10 +118,18 @@ function App() {
 
   // Reset data
   const handleReset = async () => {
-    if (confirm('คุณต้องการรีเซ็ตข้อมูลและโหลดจาก CSV ใหม่หรือไม่?')) {
-      localStorage.removeItem('budgetTrackerProjects');
-      const csvProjects = await loadFromCSV();
-      setProjects(csvProjects);
+    if (confirm('คุณต้องการรีเซ็ตข้อมูลและโหลดจาก Google Sheets ใหม่หรือไม่?')) {
+      try {
+        setIsLoading(true);
+        localStorage.removeItem('budgetTrackerProjects');
+        const googleProjects = await loadFromGoogleSheets();
+        setProjects(googleProjects);
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error resetting data:', error);
+        alert('เกิดข้อผิดพลาดในการโหลดข้อมูลจาก Google Sheets');
+        setIsLoading(false);
+      }
     }
   };
 
