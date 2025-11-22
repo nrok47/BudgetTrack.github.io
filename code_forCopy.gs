@@ -12,20 +12,13 @@ function doGet(e) {
     if (action === 'getProjects') {
       return getProjects();
     } else if (action === 'saveProjects') {
-      return saveProjects(e);
+      const data = e.parameter.data ? JSON.parse(e.parameter.data) : {};
+      return saveProjects(data);
     }
     
     return createResponse({ error: 'Invalid action' }, 400);
   } catch (error) {
-    return createResponse({ error: error.toString() }, 500);
-  }
-}
-
-function doPost(e) {
-  try {
-    const data = JSON.parse(e.postData.contents);
-    return saveProjects(data);
-  } catch (error) {
+    Logger.log('Error in doGet: ' + error.toString());
     return createResponse({ error: error.toString() }, 500);
   }
 }

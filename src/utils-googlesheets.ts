@@ -8,11 +8,9 @@ const STORAGE_KEY = 'budgetTrackerProjects';
  */
 export const loadFromGoogleSheets = async (): Promise<Project[]> => {
   try {
-    const response = await fetch(`${GOOGLE_SHEETS_API}?action=getProjects`, {
+    const response = await fetch(`${GOOGLE_SHEETS_API}?action=getProjects&timestamp=${Date.now()}`, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      redirect: 'follow',
     });
     
     if (!response.ok) {
@@ -37,17 +35,18 @@ export const loadFromGoogleSheets = async (): Promise<Project[]> => {
  */
 export const saveToGoogleSheets = async (projects: Project[]): Promise<boolean> => {
   try {
-    await fetch(GOOGLE_SHEETS_API, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ projects }),
-      mode: 'no-cors', // Google Apps Script requires this
+    // Use GET with data as query parameter for Google Apps Script
+    const params = new URLSearchParams({
+      action: 'saveProjects',
+      data: JSON.stringify({ projects })
     });
     
-    // Note: no-cors mode doesn't allow reading response
-    // We'll just save to localStorage as backup
+    await fetch(`${GOOGLE_SHEETS_API}?${params.toString()}`, {
+      method: 'GET',
+      redirect: 'follow',
+    });
+    
+    // Save to localStorage as backup
     saveToLocalStorage(projects);
     
     return true;
