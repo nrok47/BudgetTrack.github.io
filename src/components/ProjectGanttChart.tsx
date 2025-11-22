@@ -12,6 +12,7 @@ interface ProjectGanttChartProps {
   isDarkMode: boolean;
   filterGroup: string;
   sortBy: 'name' | 'budget' | 'startMonth' | 'status';
+  searchQuery?: string;
 }
 
 export const ProjectGanttChart: React.FC<ProjectGanttChartProps> = ({
@@ -22,7 +23,8 @@ export const ProjectGanttChart: React.FC<ProjectGanttChartProps> = ({
   onMonthClick,
   isDarkMode,
   filterGroup,
-  sortBy
+  sortBy,
+  searchQuery = ''
 }) => {
   const [draggedProject, setDraggedProject] = useState<Project | null>(null);
   const [dragOverMonth, setDragOverMonth] = useState<number | null>(null);
@@ -34,6 +36,13 @@ export const ProjectGanttChart: React.FC<ProjectGanttChartProps> = ({
     let filtered = filterGroup === 'ทั้งหมด' 
       ? projects 
       : projects.filter(p => p.group === filterGroup);
+
+    // Apply search filter
+    if (searchQuery) {
+      filtered = filtered.filter(p => 
+        p.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
 
     const sorted = [...filtered].sort((a, b) => {
       switch (sortBy) {
@@ -51,7 +60,7 @@ export const ProjectGanttChart: React.FC<ProjectGanttChartProps> = ({
     });
 
     return sorted;
-  }, [projects, filterGroup, sortBy]);
+  }, [projects, filterGroup, sortBy, searchQuery]);
 
   // Calculate budget summary
   const budgetSummary = useMemo((): BudgetSummary[] => {

@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Plus, Download, RefreshCw, Moon, Sun, Filter, ArrowUpDown } from 'lucide-react';
+import { Plus, Download, RefreshCw, Moon, Sun, Filter, ArrowUpDown, Search, Cloud, CloudOff, CheckCircle, X } from 'lucide-react';
 import { Project } from './types';
 import { PROJECT_GROUPS } from './constants';
+import { ToastContainer } from './components/Toast';
+import { createToast, Toast } from './hooks/useToast';
 import { 
   loadFromGoogleSheets, 
   saveToGoogleSheets, 
@@ -23,11 +25,46 @@ function App() {
   const [filterGroup, setFilterGroup] = useState<string>('ทั้งหมด');
   const [sortBy, setSortBy] = useState<'name' | 'budget' | 'startMonth' | 'status'>('startMonth');
   const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'success' | 'error'>('idle');
+  const [isOnline, setIsOnline] = useState(true);
+  const [toasts, setToasts] = useState<Toast[]>([]);
+
+  // Helper function to add toast
+  const addToast = (message: string, type: Toast['type']) => {
+    const toast = createToast(message, type);
+    setToasts(prev => [...prev, toast]);
+  };
+
+  const removeToast = (id: string) => {
+    setToasts(prev => prev.filter(t => t.id !== id));
+  };
+
+  // Check online status
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOnline(true);
+      addToast('กลับมาออนไลน์แล้ว', 'success');
+    };
+    const handleOffline = () => {
+      setIsOnline(false);
+      addToast('ออฟไลน์ - ใช้ข้อมูลจาก localStorage', 'warning');
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   // Load data on mount
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
+      setSyncStatus('syncing');
       
       try {
         // Try to load from Google Sheets first
@@ -36,20 +73,30 @@ function App() {
         if (googleProjects && googleProjects.length > 0) {
           setProjects(googleProjects);
           saveToLocalStorage(googleProjects); // Backup to localStorage
+          setSyncStatus('success');
+          addToast('โหลดข้อมูลจาก Google Sheets สำเร็จ', 'success');
         } else {
           // Fallback to localStorage
           const savedProjects = loadFromLocalStorage();
           if (savedProjects && savedProjects.length > 0) {
             setProjects(savedProjects);
+            setSyncStatus('idle');
+            addToast('ใช้ข้อมูลจาก localStorage', 'info');
+          } else {
+            setSyncStatus('idle');
           }
         }
       } catch (error) {
         console.error('Error loading from Google Sheets:', error);
+        setSyncStatus('error');
         
         // Fallback to localStorage
         const savedProjects = loadFromLocalStorage();
         if (savedProjects && savedProjects.length > 0) {
           setProjects(savedProjects);
+          addToast('ไม่สามารถเชื่อมต่อ Google Sheets - ใช้ข้อมูลจาก localStorage', 'warning');
+        } else {
+          addToast('ไม่พบข้อมูล', 'error');
         }
       }
       
@@ -63,12 +110,24 @@ function App() {
   useEffect(() => {
     if (!isLoading && projects.length > 0) {
       saveToLocalStorage(projects);
-      // Save to Google Sheets asynchronously (don't wait)
-      saveToGoogleSheets(projects).catch(err => {
-        console.error('Failed to sync with Google Sheets:', err);
-      });
+      
+      // Save to Google Sheets asynchronously
+      if (isOnline) {
+        setSyncStatus('syncing');
+        saveToGoogleSheets(projects)
+          .then(() => {
+            setSyncStatus('success');
+            // Auto-hide success status after 2 seconds
+            setTimeout(() => setSyncStatus('idle'), 2000);
+          })
+          .catch(err => {
+            console.error('Failed to sync with Google Sheets:', err);
+            setSyncStatus('error');
+            addToast('ไม่สามารถซิงค์กับ Google Sheets - บันทึกใน localStorage แล้ว', 'warning');
+          });
+      }
     }
-  }, [projects, isLoading]);
+  }, [projects, isLoading, isOnline]);
 
   // Load dark mode preference
   useEffect(() => {
@@ -100,15 +159,19 @@ function App() {
     if (selectedProject) {
       // Update existing
       setProjects(prev => prev.map(p => p.id === project.id ? project : p));
+      addToast('แก้ไขโครงการสำเร็จ', 'success');
     } else {
       // Add new
       setProjects(prev => [...prev, project]);
+      addToast('เพิ่มโครงการสำเร็จ', 'success');
     }
   };
 
   const handleDeleteProject = (id: string) => {
-    if (confirm('คุณต้องการลบโครงการนี้หรือไม่?')) {
+    const project = projects.find(p => p.id === id);
+    if (window.confirm(`คุณต้องการลบโครงการ "${project?.name}" หรือไม่?`)) {
       setProjects(prev => prev.filter(p => p.id !== id));
+      addToast('ลบโครงการสำเร็จ', 'success');
     }
   };
 
@@ -118,16 +181,20 @@ function App() {
 
   // Reset data
   const handleReset = async () => {
-    if (confirm('คุณต้องการรีเซ็ตข้อมูลและโหลดจาก Google Sheets ใหม่หรือไม่?')) {
+    if (window.confirm('คุณต้องการรีเซ็ตข้อมูลและโหลดจาก Google Sheets ใหม่หรือไม่?')) {
       try {
         setIsLoading(true);
+        setSyncStatus('syncing');
         localStorage.removeItem('budgetTrackerProjects');
         const googleProjects = await loadFromGoogleSheets();
         setProjects(googleProjects);
+        setSyncStatus('success');
+        addToast('รีเซ็ตข้อมูลสำเร็จ', 'success');
         setIsLoading(false);
       } catch (error) {
         console.error('Error resetting data:', error);
-        alert('เกิดข้อผิดพลาดในการโหลดข้อมูลจาก Google Sheets');
+        setSyncStatus('error');
+        addToast('เกิดข้อผิดพลาดในการโหลดข้อมูลจาก Google Sheets', 'error');
         setIsLoading(false);
       }
     }
@@ -136,6 +203,7 @@ function App() {
   // Export to CSV
   const handleExport = () => {
     downloadCSV(projects, `projects_${new Date().toISOString().split('T')[0]}.csv`);
+    addToast('ดาวน์โหลดไฟล์ CSV สำเร็จ', 'success');
   };
 
   // Open calendar
@@ -162,9 +230,35 @@ function App() {
       <header className={`${cardBg} shadow-lg sticky top-0 z-20`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <h1 className="text-2xl sm:text-3xl font-bold text-blue-600">
-              ตารางกำกับและติดตามโครงการ
-            </h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl sm:text-3xl font-bold text-blue-600">
+                ตารางกำกับและติดตามโครงการ
+              </h1>
+              
+              {/* Sync Status Indicator */}
+              <div className="flex items-center gap-1 text-sm">
+                {!isOnline && (
+                  <div className="flex items-center gap-1 text-yellow-600 dark:text-yellow-400" title="ออฟไลน์">
+                    <CloudOff size={16} />
+                  </div>
+                )}
+                {isOnline && syncStatus === 'syncing' && (
+                  <div className="flex items-center gap-1 text-blue-600 dark:text-blue-400" title="กำลังซิงค์...">
+                    <Cloud size={16} className="animate-pulse" />
+                  </div>
+                )}
+                {isOnline && syncStatus === 'success' && (
+                  <div className="flex items-center gap-1 text-green-600 dark:text-green-400" title="ซิงค์สำเร็จ">
+                    <CheckCircle size={16} />
+                  </div>
+                )}
+                {isOnline && syncStatus === 'error' && (
+                  <div className="flex items-center gap-1 text-red-600 dark:text-red-400" title="ซิงค์ล้มเหลว">
+                    <CloudOff size={16} />
+                  </div>
+                )}
+              </div>
+            </div>
             
             <div className="flex flex-wrap items-center gap-2">
               {/* Dark Mode Toggle */}
@@ -207,6 +301,31 @@ function App() {
 
           {/* Filters and Sort */}
           <div className="mt-4 flex flex-col sm:flex-row gap-3">
+            {/* Search */}
+            <div className="flex items-center gap-2 flex-1">
+              <Search size={20} />
+              <input
+                type="text"
+                placeholder="ค้นหาชื่อโครงการ..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={`flex-1 px-3 py-2 border rounded-lg ${
+                  isDarkMode 
+                    ? 'bg-gray-700 border-gray-600 placeholder-gray-400' 
+                    : 'bg-white border-gray-300 placeholder-gray-500'
+                } focus:ring-2 focus:ring-blue-500 focus:outline-none`}
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  title="ล้างการค้นหา"
+                >
+                  <X size={20} />
+                </button>
+              )}
+            </div>
+
             {/* Group Filter */}
             <div className="flex items-center gap-2">
               <Filter size={20} />
@@ -249,6 +368,13 @@ function App() {
             <div className="flex-1 flex items-center justify-end gap-4 text-sm">
               <div>
                 โครงการทั้งหมด: <span className="font-bold">{projects.length}</span>
+                {searchQuery && (
+                  <span className="ml-1 text-blue-600 dark:text-blue-400">
+                    (กรอง: {projects.filter(p => 
+                      p.name.toLowerCase().includes(searchQuery.toLowerCase())
+                    ).length})
+                  </span>
+                )}
               </div>
               <div>
                 งบประมาณรวม: <span className="font-bold">
@@ -272,9 +398,13 @@ function App() {
             isDarkMode={isDarkMode}
             filterGroup={filterGroup}
             sortBy={sortBy}
+            searchQuery={searchQuery}
           />
         </div>
       </main>
+
+      {/* Toast Notifications */}
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
 
       {/* Modals */}
       <ProjectModal
