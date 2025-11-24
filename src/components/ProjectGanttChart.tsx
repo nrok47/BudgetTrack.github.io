@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { Edit, Trash2, Calendar } from 'lucide-react';
 import { Project, BudgetSummary } from '../types';
-import { getFiscalYearMonths, CUMULATIVE_TARGETS } from '../constants';
+import { getFiscalYearMonths, CUMULATIVE_TARGETS, getCurrentFiscalYear } from '../constants';
+import { updateMeetingDatesToNewMonth } from '../utils-googlesheets';
 
 interface ProjectGanttChartProps {
   projects: Project[];
@@ -104,7 +105,24 @@ export const ProjectGanttChart: React.FC<ProjectGanttChartProps> = ({
   const handleDrop = (e: React.DragEvent, monthIndex: number) => {
     e.preventDefault();
     if (draggedProject && draggedProject.startMonth !== monthIndex) {
-      const updatedProject = { ...draggedProject, startMonth: monthIndex };
+      // Get current fiscal year
+      const fiscalYear = getCurrentFiscalYear();
+      
+      // Update meeting dates to match new month while preserving the day
+      const updatedDates = updateMeetingDatesToNewMonth(
+        draggedProject.meetingStartDate,
+        draggedProject.meetingEndDate,
+        monthIndex,
+        fiscalYear
+      );
+      
+      // Create updated project with new month and updated meeting dates
+      const updatedProject = { 
+        ...draggedProject, 
+        startMonth: monthIndex,
+        ...updatedDates
+      };
+      
       onUpdateProject(updatedProject);
     }
     setDraggedProject(null);

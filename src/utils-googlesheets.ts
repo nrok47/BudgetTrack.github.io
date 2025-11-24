@@ -243,3 +243,61 @@ export const isDateInRange = (date: Date, startDate: string, endDate: string): b
 export const generateId = (): string => {
   return Date.now().toString(36) + Math.random().toString(36).substring(2);
 };
+
+/**
+ * Update meeting dates to match new fiscal month while preserving the day
+ * @param oldStartDate - Original meeting start date (YYYY-MM-DD)
+ * @param oldEndDate - Original meeting end date (YYYY-MM-DD)
+ * @param newFiscalMonth - New fiscal month index (0-11)
+ * @param fiscalYear - Current fiscal year object
+ * @returns Updated dates or undefined if original dates don't exist
+ */
+export const updateMeetingDatesToNewMonth = (
+  oldStartDate: string | undefined,
+  oldEndDate: string | undefined,
+  newFiscalMonth: number,
+  fiscalYear: { startYear: number; endYear: number }
+): { meetingStartDate?: string; meetingEndDate?: string } => {
+  // If no meeting dates exist, return undefined
+  if (!oldStartDate || !oldEndDate) {
+    return { meetingStartDate: undefined, meetingEndDate: undefined };
+  }
+
+  try {
+    // Get the calendar month/year for the new fiscal month
+    const { month: newCalendarMonth, year: newCalendarYear } = fiscalMonthToCalendarMonth(newFiscalMonth, fiscalYear);
+
+    // Parse old dates to get the day values
+    const oldStart = new Date(oldStartDate);
+    const oldEnd = new Date(oldEndDate);
+    const startDay = oldStart.getDate();
+    const endDay = oldEnd.getDate();
+
+    // Get max days in the new month
+    const maxDaysInNewMonth = getDaysInMonth(newCalendarMonth, newCalendarYear);
+
+    // Ensure days don't exceed the max days in new month
+    const newStartDay = Math.min(startDay, maxDaysInNewMonth);
+    const newEndDay = Math.min(endDay, maxDaysInNewMonth);
+
+    // Create new dates with the new month/year but preserve the day
+    const newStartDate = new Date(newCalendarYear, newCalendarMonth, newStartDay);
+    const newEndDate = new Date(newCalendarYear, newCalendarMonth, newEndDay);
+
+    // Format as YYYY-MM-DD
+    const formatDate = (date: Date): string => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
+    return {
+      meetingStartDate: formatDate(newStartDate),
+      meetingEndDate: formatDate(newEndDate)
+    };
+  } catch (error) {
+    console.error('Error updating meeting dates:', error);
+    return { meetingStartDate: oldStartDate, meetingEndDate: oldEndDate };
+  }
+};
