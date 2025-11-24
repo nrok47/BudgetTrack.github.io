@@ -12,15 +12,25 @@ export const THAI_MONTHS_SHORT = [
 ];
 
 export const PROJECT_GROUPS = [
+  'ผู้อำนวยการศูนย์',
+  'รองผู้อำนวยการศูนย์',
+  'ผู้ช่วยผู้อำนวยการศูนย์',
   'กลุ่มอำนวยการ',
-  'กลุ่มพัฒนาระบบ',
-  'กลุ่มส่งเสริมและพัฒนาการเกษตร',
-  'กลุ่มส่งเสริมวิสาหกิจชุมชนและผู้ประกอบการ',
-  'กลุ่มส่งเสริมและพัฒนาเกษตรกร',
-  'กลุ่มยุทธศาสตร์และสารสนเทศ',
-  'กลุ่มส่งเสริมการตลาด',
-  'กลุ่มพัฒนาภาค',
-  'กลุ่มมาตรฐานการเกษตร'
+  'กลุ่มขับเคลื่อนยุทธศาสตร์',
+  'กลุ่มอนามัยแม่และเด็ก',
+  'กลุ่มอนามัยวัยเรียน',
+  'กลุ่มอนามัยวัยรุ่นและเยาวชน',
+  'กลุ่มอนามัยวัยทำงาน',
+  'กลุ่มอนามัยผู้สูงอายุ',
+  'กลุ่มอนามัยสิ่งแวดล้อม',
+  'กลุ่มสุขาภิบาล',
+  'กลุ่มประเมินผลกระทบต่อสุขภาพ',
+  'โรงพยาบาลศูนย์',
+  'กลุ่มพัฒนาทักษะสมองเด็กปฐมวัย : ศูนย์ EF',
+  'กลุ่มสื่อสารประชาสัมพันธ์',
+  'กลุ่มจัดการความรู้ วิจัย',
+  'กลุ่ม Training Center',
+  'สำนักงานเลขานุการ'
 ];
 
 export const PROJECT_STATUSES = ['ยังไม่เริ่ม', 'กำลังดำเนินการ', 'เสร็จสิ้น'] as const;
@@ -35,11 +45,17 @@ export const COLOR_OPTIONS = [
   { name: 'เหลือง', value: 'bg-yellow-500', textColor: 'text-gray-900' },
   { name: 'ฟ้า', value: 'bg-cyan-600', textColor: 'text-white' },
   { name: 'เทา', value: 'bg-gray-600', textColor: 'text-white' },
+  { name: 'น้ำเงินเข้ม', value: 'bg-indigo-600', textColor: 'text-white' },
+  { name: 'เขียวมรกต', value: 'bg-emerald-600', textColor: 'text-white' },
+  { name: 'เขียวมะนาว', value: 'bg-lime-600', textColor: 'text-white' },
+  { name: 'ม่วงอ่อน', value: 'bg-violet-600', textColor: 'text-white' },
+  { name: 'ชมพูบานเย็น', value: 'bg-rose-600', textColor: 'text-white' },
+  { name: 'น้ำตาล', value: 'bg-amber-700', textColor: 'text-white' },
 ];
 
 // Cumulative target percentages for each month (Oct to Sep)
 export const CUMULATIVE_TARGETS = [
-  10, 15, 20, 30, 40, 50, 60, 70, 80, 85, 95, 100
+  11, 23, 36, 47, 53, 61, 68, 75, 82, 90, 100, 100
 ];
 
 export const getCurrentFiscalYear = (): { startYear: number; endYear: number } => {
