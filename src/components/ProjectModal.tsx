@@ -89,6 +89,16 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validate date range
+    if (formData.meetingStartDate && formData.meetingEndDate) {
+      const startDate = new Date(formData.meetingStartDate);
+      const endDate = new Date(formData.meetingEndDate);
+      if (endDate < startDate) {
+        alert('วันสิ้นสุดประชุมต้องมากกว่าหรือเท่ากับวันเริ่มประชุม');
+        return;
+      }
+    }
+    
     const projectData: Project = {
       id: project?.id || generateId(),
       name: formData.name || '',
@@ -192,8 +202,13 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                     type="date"
                     value={formData.meetingEndDate}
                     onChange={(e) => handleChange('meetingEndDate', e.target.value)}
+                    min={formData.meetingStartDate || undefined}
                     className={`w-full px-4 py-2 border ${borderColor} rounded-lg ${inputBg} ${textColor} focus:ring-2 focus:ring-blue-500`}
                   />
+                  {formData.meetingStartDate && formData.meetingEndDate && 
+                   new Date(formData.meetingEndDate) < new Date(formData.meetingStartDate) && (
+                    <p className="text-red-500 text-xs mt-1">วันสิ้นสุดต้องมากกว่าหรือเท่ากับวันเริ่มต้น</p>
+                  )}
                 </div>
               </div>
 

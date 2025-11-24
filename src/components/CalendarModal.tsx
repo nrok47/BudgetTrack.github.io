@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { X, Calendar } from 'lucide-react';
 import { Project } from '../types';
 import { getCurrentFiscalYear, THAI_MONTHS } from '../constants';
@@ -21,6 +21,13 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({
 }) => {
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const fiscalYear = getCurrentFiscalYear();
+  
+  // Reset selected day when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setSelectedDay(null);
+    }
+  }, [isOpen]);
   const { month: calendarMonth, year: calendarYear } = fiscalMonthToCalendarMonth(monthIndex, fiscalYear);
   
   const monthData = useMemo(() => {

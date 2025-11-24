@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Plus, Download, RefreshCw, Moon, Sun, Filter, ArrowUpDown, Search, Cloud, CloudOff, CheckCircle, X } from 'lucide-react';
 import { Project } from './types';
 import { PROJECT_GROUPS } from './constants';
@@ -30,15 +30,15 @@ function App() {
   const [isOnline, setIsOnline] = useState(true);
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  // Helper function to add toast
-  const addToast = (message: string, type: Toast['type']) => {
+  // Helper function to add toast (wrapped in useCallback to prevent infinite loops)
+  const addToast = useCallback((message: string, type: Toast['type']) => {
     const toast = createToast(message, type);
     setToasts(prev => [...prev, toast]);
-  };
+  }, []);
 
-  const removeToast = (id: string) => {
+  const removeToast = useCallback((id: string) => {
     setToasts(prev => prev.filter(t => t.id !== id));
-  };
+  }, []);
 
   // Check online status
   useEffect(() => {
@@ -58,7 +58,7 @@ function App() {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, []);
+  }, [addToast]);
 
   // Load data on mount
   useEffect(() => {
@@ -104,7 +104,7 @@ function App() {
     };
     
     loadData();
-  }, []);
+  }, [addToast]);
 
   // Auto-save to both localStorage and Google Sheets whenever projects change
   useEffect(() => {
@@ -118,7 +118,9 @@ function App() {
           .then(() => {
             setSyncStatus('success');
             // Auto-hide success status after 2 seconds
-            setTimeout(() => setSyncStatus('idle'), 2000);
+            const timeoutId = setTimeout(() => setSyncStatus('idle'), 2000);
+            // Cleanup timeout on unmount or re-run
+            return () => clearTimeout(timeoutId);
           })
           .catch(err => {
             console.error('Failed to sync with Google Sheets:', err);
@@ -127,7 +129,7 @@ function App() {
           });
       }
     }
-  }, [projects, isLoading, isOnline]);
+  }, [projects, isLoading, isOnline, addToast]);
 
   // Load dark mode preference
   useEffect(() => {
