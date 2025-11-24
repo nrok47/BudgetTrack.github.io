@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Plus, Download, RefreshCw, Moon, Sun, Filter, ArrowUpDown, Search, Cloud, CloudOff, CheckCircle, X } from 'lucide-react';
+import { Plus, Download, RefreshCw, Moon, Sun, Filter, ArrowUpDown, Search, Cloud, CloudOff, CheckCircle, X, Save } from 'lucide-react';
 import { Project } from './types';
 import { PROJECT_GROUPS } from './constants';
 import { ToastContainer } from './components/Toast';
@@ -29,6 +29,7 @@ function App() {
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'success' | 'error'>('idle');
   const [isOnline, setIsOnline] = useState(true);
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   // Helper function to add toast (wrapped in useCallback to prevent infinite loops)
   const addToast = useCallback((message: string, type: Toast['type']) => {
@@ -74,6 +75,7 @@ function App() {
           setProjects(googleProjects);
           saveToLocalStorage(googleProjects); // Backup to localStorage
           setSyncStatus('success');
+          setHasUnsavedChanges(false); // Reset unsaved changes after initial load
           addToast('โหลดข้อมูลจาก Google Sheets สำเร็จ', 'success');
         } else {
           // Fallback to localStorage
@@ -81,9 +83,11 @@ function App() {
           if (savedProjects && savedProjects.length > 0) {
             setProjects(savedProjects);
             setSyncStatus('idle');
+            setHasUnsavedChanges(false);
             addToast('ใช้ข้อมูลจาก localStorage', 'info');
           } else {
             setSyncStatus('idle');
+            setHasUnsavedChanges(false);
           }
         }
       } catch (error) {
@@ -94,8 +98,10 @@ function App() {
         const savedProjects = loadFromLocalStorage();
         if (savedProjects && savedProjects.length > 0) {
           setProjects(savedProjects);
+          setHasUnsavedChanges(false);
           addToast('ไม่สามารถเชื่อมต่อ Google Sheets - ใช้ข้อมูลจาก localStorage', 'warning');
         } else {
+          setHasUnsavedChanges(false);
           addToast('ไม่พบข้อมูล', 'error');
         }
       }
@@ -106,30 +112,13 @@ function App() {
     loadData();
   }, [addToast]);
 
-  // Auto-save to both localStorage and Google Sheets whenever projects change
+  // Auto-save to localStorage only (not Google Sheets)
   useEffect(() => {
     if (!isLoading && projects.length > 0) {
       saveToLocalStorage(projects);
-      
-      // Save to Google Sheets asynchronously
-      if (isOnline) {
-        setSyncStatus('syncing');
-        saveToGoogleSheets(projects)
-          .then(() => {
-            setSyncStatus('success');
-            // Auto-hide success status after 2 seconds
-            const timeoutId = setTimeout(() => setSyncStatus('idle'), 2000);
-            // Cleanup timeout on unmount or re-run
-            return () => clearTimeout(timeoutId);
-          })
-          .catch(err => {
-            console.error('Failed to sync with Google Sheets:', err);
-            setSyncStatus('error');
-            addToast('ไม่สามารถซิงค์กับ Google Sheets - บันทึกใน localStorage แล้ว', 'warning');
-          });
-      }
+      setHasUnsavedChanges(true);
     }
-  }, [projects, isLoading, isOnline, addToast]);
+  }, [projects, isLoading]);
 
   // Load dark mode preference
   useEffect(() => {
@@ -191,6 +180,7 @@ function App() {
         const googleProjects = await loadFromGoogleSheets();
         setProjects(googleProjects);
         setSyncStatus('success');
+        setHasUnsavedChanges(false);
         addToast('รีเซ็ตข้อมูลสำเร็จ', 'success');
         setIsLoading(false);
       } catch (error) {
@@ -199,6 +189,30 @@ function App() {
         addToast('เกิดข้อผิดพลาดในการโหลดข้อมูลจาก Google Sheets', 'error');
         setIsLoading(false);
       }
+    }
+  };
+
+  // Manual save to Google Sheets
+  const handleManualSave = async () => {
+    if (!isOnline) {
+      addToast('ไม่สามารถบันทึกได้ - กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต', 'error');
+      return;
+    }
+
+    try {
+      setSyncStatus('syncing');
+      await saveToGoogleSheets(projects);
+      setSyncStatus('success');
+      setHasUnsavedChanges(false);
+      addToast('บันทึกข้อมูลลง Google Sheets สำเร็จ', 'success');
+      
+      // Auto-hide success status after 2 seconds
+      setTimeout(() => setSyncStatus('idle'), 2000);
+    } catch (error) {
+      console.error('Failed to save to Google Sheets:', error);
+      setSyncStatus('error');
+      addToast('ไม่สามารถบันทึกข้อมูลลง Google Sheets ได้', 'error');
+      setTimeout(() => setSyncStatus('idle'), 3000);
     }
   };
 
@@ -270,6 +284,24 @@ function App() {
                 title={isDarkMode ? 'เปลี่ยนเป็นโหมดสว่าง' : 'เปลี่ยนเป็นโหมดมืด'}
               >
                 {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+              </button>
+
+              {/* Manual Save Button */}
+              <button
+                onClick={handleManualSave}
+                disabled={!isOnline || syncStatus === 'syncing' || !hasUnsavedChanges}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                  hasUnsavedChanges && isOnline
+                    ? 'bg-orange-600 text-white hover:bg-orange-700 animate-pulse'
+                    : 'bg-gray-400 text-white cursor-not-allowed opacity-50'
+                }`}
+                title={!isOnline ? 'ออฟไลน์ - ไม่สามารถบันทึกได้' : hasUnsavedChanges ? 'บันทึกข้อมูลลง Google Sheets' : 'ไม่มีการเปลี่ยนแปลง'}
+              >
+                <Save size={20} />
+                <span className="hidden sm:inline">
+                  {syncStatus === 'syncing' ? 'กำลังบันทึก...' : 'บันทึก'}
+                </span>
+                {hasUnsavedChanges && <span className="ml-1 text-xs">●</span>}
               </button>
 
               {/* Add Project */}
