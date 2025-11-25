@@ -7,6 +7,15 @@ A comprehensive web application for tracking and managing project budgets with T
 - **Gantt Chart Timeline**: Visual representation of projects across Thai fiscal year months
 - **Drag & Drop**: Easily move projects between months by dragging the project bars
 - **Budget Tracking**: Monthly and cumulative budget calculations with target vs actual comparison
+# Project Budget Tracker
+
+A comprehensive web application for tracking and managing project budgets with Thai Fiscal Year timeline (October to September).
+
+## Features
+
+- **Gantt Chart Timeline**: Visual representation of projects across Thai fiscal year months
+- **Drag & Drop**: Easily move projects between months by dragging the project bars
+- **Budget Tracking**: Monthly and cumulative budget calculations with target vs actual comparison
 - **CRUD Operations**: Add, edit, and delete projects with validation
 - **Smart Date Handling**: Auto-lock start month based on meeting dates
 - **Interactive Calendar**: Click month headers to view detailed calendar with meeting highlights
@@ -36,7 +45,7 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to view the application.
+Open http://localhost:3000 to view the application.
 
 ### Build
 
@@ -52,56 +61,127 @@ npm run preview
 
 ## Project Structure
 
-```
+```text
 src/
 ├── components/
 │   ├── ProjectGanttChart.tsx   # Main Gantt chart component
-│   ├── ProjectModal.tsx         # Add/Edit project modal
-│   └── CalendarModal.tsx        # Monthly calendar view
-├── types.ts                     # TypeScript interfaces
-├── constants.ts                 # App constants and fiscal year logic
-├── utils.ts                     # Utility functions (CSV, dates, storage)
-├── App.tsx                      # Main application component
-├── main.tsx                     # Application entry point
-└── index.css                    # Global styles
+│   ├── ProjectModal.tsx        # Add/Edit activity modal
+│   └── CalendarModal.tsx       # Monthly calendar view
+├── types.ts                    # TypeScript interfaces
+├── constants.ts                # App constants and fiscal year logic
+├── utils.ts                    # Utility functions (CSV, dates, storage)
+├── utils-googlesheets.ts       # Google Sheets integration helpers
+├── App.tsx                     # Main application component
+├── main.tsx                    # Application entry point
+└── index.css                   # Global styles
 
 public/
-└── projects.csv                 # Initial project data
+└── projects.csv                # Initial project data
 ```
 
 ## Usage
 
-### Adding a Project
+### Adding an Activity
 
-1. Click the "เพิ่ม" (Add) button in the header
-2. Fill in project details:
-   - Project name
-   - Department group
-   - Budget amount
-   - Meeting dates (optional - auto-locks start month)
+1. Click the "เพิ่ม" (Add) button in the header.
+2. Fill in details:
+   - Name
+   - Group
+   - Budget
+   - Meeting dates (optional; will lock start month)
    - Start month
    - Status
    - Color
-3. Click "เพิ่มโครงการ" to save
+   - Vehicle (optional)
+   - Chairman (optional)
+3. Click "เพิ่มกิจกรรม" to save.
 
-### Moving Projects
+### Moving Activities
 
-Simply drag a project bar from one month column and drop it into another month.
+Drag a bar from one month column and drop it into another.
 
 ### Viewing Calendar
 
-Click on any month header to see:
-- Full calendar grid for that month
-- Highlighted days with project meetings
-- List of all projects starting in that month
+Click any month header to see:
+- Full calendar grid
+- Highlighted meeting days
+- List of activities starting in that month
 
 ### Data Management
 
-- **Auto-save**: Changes are automatically saved to localStorage
-- **Export**: Download current data as CSV file
-- **Reset**: Clear localStorage and reload from original CSV file
+- **Auto-save**: Changes persist to localStorage
+- **Export**: Download current data as CSV
+- **Reset**: Clear localStorage and reload from `projects.csv`
 
 ## License
 
 MIT
-Budget Tracker
+
+---
+
+## Deployment
+
+The project is deployed to GitHub Pages using a GitHub Actions workflow (`.github/workflows/deploy.yml`). The workflow builds the app from the `main` branch and publishes the `dist` output automatically.
+
+### 1. Prerequisites
+
+- Pages set to use **GitHub Actions** (Repo Settings → Pages → Source: GitHub Actions)
+- `dist/` is ignored (see `.gitignore`) so only source code is versioned
+
+### 2. Automatic Deployment Flow
+
+1. Push commits to `main`
+2. Workflow runs: checkout → install (`npm ci`) → build (`npm run build`) → upload artifact → deploy
+3. Pages URL appears in the deployment job output
+git push origin main
+```
+ 
+```bash
+git checkout main
+npm install
+npm run dev
+# After changes
+git commit -am "feat: update"
+git push origin main
+```
+
+### 4. Manual Fallback (Emergency)
+
+If Actions are unavailable and you need a quick manual publish:
+
+```bash
+npm run build
+git checkout -B gh-pages
+rm -rf *
+cp -r dist/* .
+git add .
+git commit -m "manual: publish"
+git push -f origin gh-pages
+```
+
+Switch Pages source to `gh-pages` temporarily. Revert to Actions afterward.
+
+### 5. Cleaning Up Legacy Branch
+
+If you previously used a `gh-pages` branch and no longer need it:
+
+```bash
+git branch -D gh-pages            # local
+git push origin --delete gh-pages # remote
+```
+
+### 6. Common Issues
+
+- 404 assets: ensure `vite.config.ts` `base` is `/`
+- Blank page: confirm workflow succeeded; check console for blocked scripts
+- Large bundle: consider dynamic imports / code splitting
+
+### 7. Changing Node Version
+
+Update `node-version` in `deploy.yml` if you adopt a newer runtime.
+
+### 8. Environment Variables
+
+Add secrets via Repo Settings → Secrets and reference them in workflow steps (none required currently).
+
+---
