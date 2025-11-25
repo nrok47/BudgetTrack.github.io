@@ -35,21 +35,21 @@ export const loadFromGoogleSheets = async (): Promise<Project[]> => {
  */
 export const saveToGoogleSheets = async (projects: Project[]): Promise<boolean> => {
   try {
-    const response = await fetch(GOOGLE_SHEETS_API, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ 
-        action: 'saveProjects',
-        projects 
-      }),
+    // Use GET with data as URL parameter to bypass CORS preflight
+    const params = new URLSearchParams({
+      action: 'saveProjects',
+      data: JSON.stringify(projects)
+    });
+    
+    await fetch(`${GOOGLE_SHEETS_API}?${params.toString()}`, {
+      method: 'GET',
+      redirect: 'follow',
     });
     
     // Save to localStorage as backup
     saveToLocalStorage(projects);
     
-    return response.ok;
+    return true;
   } catch (error) {
     console.error('Error saving to Google Sheets:', error);
     // Still save to localStorage as fallback

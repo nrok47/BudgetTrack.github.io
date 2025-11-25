@@ -13,6 +13,11 @@ function doGet(e) {
       return getProjects();
     }
     
+    if (action === 'saveProjects') {
+      const projectsData = JSON.parse(e.parameter.data || '[]');
+      return saveProjects({ projects: projectsData });
+    }
+    
     return createResponse({ error: 'Invalid action' }, 400);
   } catch (error) {
     Logger.log('Error in doGet: ' + error.toString());
@@ -103,6 +108,7 @@ function saveProjects(data) {
     }
     
     const projects = data.projects || [];
+    Logger.log('Saving projects: ' + JSON.stringify(projects));
     
     // ล้างข้อมูลเก่า (เก็บ header)
     const lastRow = sheet.getLastRow();
@@ -111,22 +117,27 @@ function saveProjects(data) {
     }
     
     // เขียนข้อมูลใหม่
-    const rows = projects.map(p => [
-      p.id,
-      p.name,
-      p.group,
-      p.budget,
-      p.startMonth,
-      p.color,
-      p.status,
-      p.meetingStartDate || '',
-      p.meetingEndDate || '',
-      p.vehicle || '',
-      p.chairman || ''
-    ]);
+    const rows = projects.map(p => {
+      const row = [
+        p.id,
+        p.name,
+        p.group,
+        p.budget,
+        p.startMonth,
+        p.color,
+        p.status,
+        p.meetingStartDate || '',
+        p.meetingEndDate || '',
+        p.vehicle || '',
+        p.chairman || ''
+      ];
+      Logger.log('Row: ' + JSON.stringify(row));
+      return row;
+    });
     
     if (rows.length > 0) {
       sheet.getRange(2, 1, rows.length, 11).setValues(rows);
+      Logger.log('Wrote ' + rows.length + ' rows to sheet');
     }
     
     return createResponse({ success: true, count: projects.length }, 200);
