@@ -28,6 +28,8 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
     status: 'ยังไม่เริ่ม',
     meetingStartDate: '',
     meetingEndDate: '',
+    vehicle: '',
+    chairman: '',
   });
   
   const [originalData, setOriginalData] = useState<Partial<Project>>({});
@@ -45,6 +47,8 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
         status: 'ยังไม่เริ่ม',
         meetingStartDate: '',
         meetingEndDate: '',
+        vehicle: '',
+        chairman: '',
       };
       setFormData(initialData);
       setOriginalData(initialData);
@@ -131,7 +135,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
             {/* Header */}
             <div className={`flex items-center justify-between p-6 border-b ${borderColor}`}>
               <h2 className="text-2xl font-bold">
-                {project ? 'แก้ไขโครงการ' : 'เพิ่มโครงการใหม่'}
+                {project ? 'แก้ไขกิจกรรม' : 'เพิ่มกิจกรรมใหม่'}
               </h2>
               <button
                 onClick={handleClose}
@@ -145,14 +149,14 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               {/* Project Name */}
               <div>
-                <label className="block text-sm font-medium mb-2">ชื่อโครงการ *</label>
+                <label className="block text-sm font-medium mb-2">ชื่อกิจกรรม *</label>
                 <input
                   type="text"
                   required
                   value={formData.name}
                   onChange={(e) => handleChange('name', e.target.value)}
                   className={`w-full px-4 py-2 border ${borderColor} rounded-lg ${inputBg} ${textColor} focus:ring-2 focus:ring-blue-500`}
-                  placeholder="ระบุชื่อโครงการ"
+                  placeholder="ระบุชื่อกิจกรรม"
                 />
               </div>
 
@@ -277,6 +281,30 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                 )}
               </div>
 
+              {/* Vehicle */}
+              <div>
+                <label className="block text-sm font-medium mb-2">รถราชการและพนักงานขับรถที่ใช้</label>
+                <input
+                  type="text"
+                  value={formData.vehicle || ''}
+                  onChange={(e) => handleChange('vehicle', e.target.value)}
+                  className={`w-full px-4 py-2 border ${borderColor} rounded-lg ${inputBg} ${textColor} focus:ring-2 focus:ring-blue-500`}
+                  placeholder="ระบุรถและพนักงาน (ถ้ามี)"
+                />
+              </div>
+
+              {/* Chairman */}
+              <div>
+                <label className="block text-sm font-medium mb-2">ประธานในกิจกรรม</label>
+                <input
+                  type="text"
+                  value={formData.chairman || ''}
+                  onChange={(e) => handleChange('chairman', e.target.value)}
+                  className={`w-full px-4 py-2 border ${borderColor} rounded-lg ${inputBg} ${textColor} focus:ring-2 focus:ring-blue-500`}
+                  placeholder="ระบุชื่อประธาน (ถ้ามี)"
+                />
+              </div>
+
               {/* Submit Buttons */}
               <div className="flex justify-end gap-3 pt-4">
                 <button
@@ -290,7 +318,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                   type="submit"
                   className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                 >
-                  {project ? 'บันทึก' : 'เพิ่มโครงการ'}
+                  {project ? 'บันทึก' : 'เพิ่มกิจกรรม'}
                 </button>
               </div>
             </form>

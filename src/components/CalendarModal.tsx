@@ -104,7 +104,7 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({
                     ปฏิทิน{THAI_MONTHS[monthIndex]} {thaiYear}
                   </h2>
                   <p className="text-sm opacity-75 mt-1">
-                    {projectsStartingThisMonth.length} โครงการ | งบประมาณ {projectsStartingThisMonth.reduce((sum, p) => sum + p.budget, 0).toLocaleString('th-TH')} บาท
+                    {projectsStartingThisMonth.length} กิจกรรม | งบประมาณ {projectsStartingThisMonth.reduce((sum, p) => sum + p.budget, 0).toLocaleString('th-TH')} บาท
                   </p>
                 </div>
               </div>
@@ -274,7 +274,7 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({
 
               {/* Projects Summary */}
               <div className={`border-t ${borderColor} pt-6 mt-6`}>
-                <h3 className="text-xl font-bold mb-4">โครงการทั้งหมดในเดือนนี้</h3>
+                <h3 className="text-xl font-bold mb-4">กิจกรรมทั้งหมดในเดือนนี้</h3>
                 {projectsStartingThisMonth.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {projectsStartingThisMonth.map(project => (
@@ -308,7 +308,7 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({
                   </div>
                 ) : (
                   <div className="text-center py-8 opacity-50">
-                    ไม่มีโครงการที่เริ่มในเดือนนี้
+                    ไม่มีกิจกรรมที่เริ่มในเดือนนี้
                   </div>
                 )}
               </div>

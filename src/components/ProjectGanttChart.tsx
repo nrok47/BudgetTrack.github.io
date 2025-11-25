@@ -141,7 +141,7 @@ export const ProjectGanttChart: React.FC<ProjectGanttChartProps> = ({
         <thead className={`${headerBg} sticky top-0 z-10`}>
           <tr>
             <th className={`border ${borderColor} p-3 text-left min-w-[300px]`}>
-              โครงการ
+              กิจกรรม
             </th>
             {months.map((month, index) => (
               <th
@@ -226,7 +226,7 @@ export const ProjectGanttChart: React.FC<ProjectGanttChartProps> = ({
           {filteredAndSortedProjects.length === 0 && (
             <tr>
               <td colSpan={13} className="text-center py-8 opacity-50">
-                ไม่มีโครงการ
+                ไม่มีกิจกรรม
               </td>
             </tr>
           )}

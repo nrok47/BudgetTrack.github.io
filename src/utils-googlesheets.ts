@@ -128,6 +128,8 @@ export const parseCSV = (csvContent: string): Project[] => {
       status: (values[6] as Project['status']) || 'ยังไม่เริ่ม',
       meetingStartDate: values[7] || undefined,
       meetingEndDate: values[8] || undefined,
+      vehicle: values[9] || undefined,
+      chairman: values[10] || undefined,
     };
     
     projects.push(project);
@@ -154,10 +156,12 @@ export const loadFromCSV = async (): Promise<Project[]> => {
  * Convert Project array to CSV content
  */
 export const projectsToCSV = (projects: Project[]): string => {
-  const headers = 'id,name,group,budget,startMonth,color,status,meetingStartDate,meetingEndDate';
+  const headers = 'id,name,group,budget,startMonth,color,status,meetingStartDate,meetingEndDate,vehicle,chairman';
   
   const rows = projects.map(p => {
     const escapeName = p.name.includes(',') ? `"${p.name}"` : p.name;
+    const escapeVehicle = p.vehicle && p.vehicle.includes(',') ? `"${p.vehicle}"` : (p.vehicle || '');
+    const escapeChairman = p.chairman && p.chairman.includes(',') ? `"${p.chairman}"` : (p.chairman || '');
     return [
       p.id,
       escapeName,
@@ -167,7 +171,9 @@ export const projectsToCSV = (projects: Project[]): string => {
       p.color,
       p.status,
       p.meetingStartDate || '',
-      p.meetingEndDate || ''
+      p.meetingEndDate || '',
+      escapeVehicle,
+      escapeChairman
     ].join(',');
   });
   

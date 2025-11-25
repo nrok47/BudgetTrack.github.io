@@ -150,19 +150,19 @@ function App() {
     if (selectedProject) {
       // Update existing
       setProjects(prev => prev.map(p => p.id === project.id ? project : p));
-      addToast('แก้ไขโครงการสำเร็จ', 'success');
+      addToast('แก้ไขกิจกรรมสำเร็จ', 'success');
     } else {
       // Add new
       setProjects(prev => [...prev, project]);
-      addToast('เพิ่มโครงการสำเร็จ', 'success');
+      addToast('เพิ่มกิจกรรมสำเร็จ', 'success');
     }
   };
 
   const handleDeleteProject = (id: string) => {
     const project = projects.find(p => p.id === id);
-    if (window.confirm(`คุณต้องการลบโครงการ "${project?.name}" หรือไม่?`)) {
+    if (window.confirm(`คุณต้องการลบกิจกรรม "${project?.name}" หรือไม่?`)) {
       setProjects(prev => prev.filter(p => p.id !== id));
-      addToast('ลบโครงการสำเร็จ', 'success');
+      addToast('ลบกิจกรรมสำเร็จ', 'success');
     }
   };
 
@@ -248,7 +248,7 @@ function App() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-3">
               <h1 className="text-2xl sm:text-3xl font-bold text-blue-600">
-                ตารางกำกับและติดตามโครงการ
+                ตารางกำกับและติดตามกิจกรรม
               </h1>
               
               {/* Sync Status Indicator */}
@@ -340,7 +340,7 @@ function App() {
               <Search size={20} />
               <input
                 type="text"
-                placeholder="ค้นหาชื่อโครงการ..."
+                placeholder="ค้นหาชื่อกิจกรรม..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className={`flex-1 px-3 py-2 border rounded-lg ${
@@ -401,7 +401,7 @@ function App() {
             {/* Summary */}
             <div className="flex-1 flex items-center justify-end gap-4 text-sm">
               <div>
-                โครงการทั้งหมด: <span className="font-bold">{projects.length}</span>
+                กิจกรรมทั้งหมด: <span className="font-bold">{projects.length}</span>
                 {searchQuery && (
                   <span className="ml-1 text-blue-600 dark:text-blue-400">
                     (กรอง: {projects.filter(p => 
@@ -459,7 +459,7 @@ function App() {
 
       {/* Footer */}
       <footer className="mt-8 pb-6 text-center text-sm opacity-75">
-        <p>ปีงบประมาณ 2569 (ต.ค. 68 - ก.ย. 69) | ระบบติดตามงบประมาณโครงการ</p>
+        <p>ปีงบประมาณ 2569 (ต.ค. 68 - ก.ย. 69) | ระบบติดตามงบประมาณกิจกรรม</p>
       </footer>
     </div>
   );

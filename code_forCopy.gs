@@ -74,7 +74,9 @@ function getProjects() {
         color: row[5]?.toString() || 'bg-blue-600',
         status: row[6]?.toString() || 'ยังไม่เริ่ม',
         meetingStartDate: row[7] ? formatDate(row[7]) : undefined,
-        meetingEndDate: row[8] ? formatDate(row[8]) : undefined
+        meetingEndDate: row[8] ? formatDate(row[8]) : undefined,
+        vehicle: row[9]?.toString() || '',
+        chairman: row[10]?.toString() || ''
       };
       
       projects.push(project);
@@ -118,11 +120,13 @@ function saveProjects(data) {
       p.color,
       p.status,
       p.meetingStartDate || '',
-      p.meetingEndDate || ''
+      p.meetingEndDate || '',
+      p.vehicle || '',
+      p.chairman || ''
     ]);
     
     if (rows.length > 0) {
-      sheet.getRange(2, 1, rows.length, 9).setValues(rows);
+      sheet.getRange(2, 1, rows.length, 11).setValues(rows);
     }
     
     return createResponse({ success: true, count: projects.length }, 200);

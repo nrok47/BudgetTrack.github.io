@@ -10,6 +10,8 @@ export interface Project {
   status: ProjectStatus;
   meetingStartDate?: string; // ISO Date YYYY-MM-DD
   meetingEndDate?: string;   // ISO Date YYYY-MM-DD
+  vehicle?: string;          // รถราชการและพนักงานขับรถ (optional)
+  chairman?: string;         // ประธานในกิจกรรม (optional)
 }
 
 export interface MonthData {
