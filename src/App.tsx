@@ -112,13 +112,32 @@ function App() {
     loadData();
   }, [addToast]);
 
-  // Auto-save to localStorage only (not Google Sheets)
+  // Auto-save to localStorage and Google Sheets
   useEffect(() => {
     if (!isLoading && projects.length > 0) {
       saveToLocalStorage(projects);
       setHasUnsavedChanges(true);
+      
+      // Auto-sync to Google Sheets if online
+      if (isOnline) {
+        const syncTimer = setTimeout(() => {
+          saveToGoogleSheets(projects)
+            .then(() => {
+              setSyncStatus('success');
+              setHasUnsavedChanges(false);
+              setTimeout(() => setSyncStatus('idle'), 2000);
+            })
+            .catch((error) => {
+              console.error('Auto-sync to Google Sheets failed:', error);
+              setSyncStatus('error');
+              setTimeout(() => setSyncStatus('idle'), 3000);
+            });
+        }, 1000); // Debounce: wait 1s after last change before syncing
+        
+        return () => clearTimeout(syncTimer);
+      }
     }
-  }, [projects, isLoading]);
+  }, [projects, isLoading, isOnline]);
 
   // Load dark mode preference
   useEffect(() => {
