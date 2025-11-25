@@ -7,15 +7,6 @@ A comprehensive web application for tracking and managing project budgets with T
 - **Gantt Chart Timeline**: Visual representation of projects across Thai fiscal year months
 - **Drag & Drop**: Easily move projects between months by dragging the project bars
 - **Budget Tracking**: Monthly and cumulative budget calculations with target vs actual comparison
-# Project Budget Tracker
-
-A comprehensive web application for tracking and managing project budgets with Thai Fiscal Year timeline (October to September).
-
-## Features
-
-- **Gantt Chart Timeline**: Visual representation of projects across Thai fiscal year months
-- **Drag & Drop**: Easily move projects between months by dragging the project bars
-- **Budget Tracking**: Monthly and cumulative budget calculations with target vs actual comparison
 - **CRUD Operations**: Add, edit, and delete projects with validation
 - **Smart Date Handling**: Auto-lock start month based on meeting dates
 - **Interactive Calendar**: Click month headers to view detailed calendar with meeting highlights
@@ -45,7 +36,7 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:3000 to view the application.
+Open [http://localhost:3000](http://localhost:3000) to view the application.
 
 ### Build
 
@@ -83,7 +74,7 @@ public/
 
 ### Adding an Activity
 
-1. Click the "เพิ่ม" (Add) button in the header.
+1. Click the "เพิ่ม" (Add) button in the header
 2. Fill in details:
    - Name
    - Group
@@ -94,7 +85,7 @@ public/
    - Color
    - Vehicle (optional)
    - Chairman (optional)
-3. Click "เพิ่มกิจกรรม" to save.
+3. Click "เพิ่มกิจกรรม" to save
 
 ### Moving Activities
 
@@ -103,6 +94,7 @@ Drag a bar from one month column and drop it into another.
 ### Viewing Calendar
 
 Click any month header to see:
+
 - Full calendar grid
 - Highlighted meeting days
 - List of activities starting in that month
@@ -117,25 +109,23 @@ Click any month header to see:
 
 MIT
 
----
-
 ## Deployment
 
 The project is deployed to GitHub Pages using a GitHub Actions workflow (`.github/workflows/deploy.yml`). The workflow builds the app from the `main` branch and publishes the `dist` output automatically.
 
-### 1. Prerequisites
+### Prerequisites
 
 - Pages set to use **GitHub Actions** (Repo Settings → Pages → Source: GitHub Actions)
 - `dist/` is ignored (see `.gitignore`) so only source code is versioned
 
-### 2. Automatic Deployment Flow
+### Automatic Deployment Flow
 
 1. Push commits to `main`
 2. Workflow runs: checkout → install (`npm ci`) → build (`npm run build`) → upload artifact → deploy
 3. Pages URL appears in the deployment job output
-git push origin main
-```
- 
+
+### Local Development → Deploy
+
 ```bash
 git checkout main
 npm install
@@ -145,7 +135,7 @@ git commit -am "feat: update"
 git push origin main
 ```
 
-### 4. Manual Fallback (Emergency)
+### Manual Fallback (Emergency)
 
 If Actions are unavailable and you need a quick manual publish:
 
@@ -161,7 +151,7 @@ git push -f origin gh-pages
 
 Switch Pages source to `gh-pages` temporarily. Revert to Actions afterward.
 
-### 5. Cleaning Up Legacy Branch
+### Cleaning Up Legacy Branch
 
 If you previously used a `gh-pages` branch and no longer need it:
 
@@ -170,18 +160,16 @@ git branch -D gh-pages            # local
 git push origin --delete gh-pages # remote
 ```
 
-### 6. Common Issues
+### Common Issues
 
-- 404 assets: ensure `vite.config.ts` `base` is `/`
+- 404 assets: ensure `vite.config.ts` `base` is `/BudgetTrack.github.io/`
 - Blank page: confirm workflow succeeded; check console for blocked scripts
 - Large bundle: consider dynamic imports / code splitting
 
-### 7. Changing Node Version
+### Changing Node Version
 
 Update `node-version` in `deploy.yml` if you adopt a newer runtime.
 
-### 8. Environment Variables
+### Environment Variables
 
 Add secrets via Repo Settings → Secrets and reference them in workflow steps (none required currently).
-
----
