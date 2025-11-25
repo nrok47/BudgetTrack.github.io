@@ -113,6 +113,8 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
       status: formData.status || 'ยังไม่เริ่ม',
       meetingStartDate: formData.meetingStartDate || undefined,
       meetingEndDate: formData.meetingEndDate || undefined,
+      vehicle: formData.vehicle || undefined,
+      chairman: formData.chairman || undefined,
     };
     
     onSave(projectData);
