@@ -35,9 +35,8 @@ export const loadFromGoogleSheets = async (): Promise<Project[]> => {
  */
 export const saveToGoogleSheets = async (projects: Project[]): Promise<boolean> => {
   try {
-    await fetch(GOOGLE_SHEETS_API, {
+    const response = await fetch(GOOGLE_SHEETS_API, {
       method: 'POST',
-      mode: 'no-cors',
       headers: {
         'Content-Type': 'application/json',
       },
@@ -45,13 +44,12 @@ export const saveToGoogleSheets = async (projects: Project[]): Promise<boolean> 
         action: 'saveProjects',
         projects 
       }),
-      redirect: 'follow',
     });
     
     // Save to localStorage as backup
     saveToLocalStorage(projects);
     
-    return true;
+    return response.ok;
   } catch (error) {
     console.error('Error saving to Google Sheets:', error);
     // Still save to localStorage as fallback
