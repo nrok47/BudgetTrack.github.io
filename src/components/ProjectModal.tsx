@@ -255,14 +255,14 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
               {/* Color Picker */}
               <div>
                 <label className="block text-sm font-medium mb-2">สี *</label>
-                <div className="grid grid-cols-9 gap-2">
+                <div className="grid grid-cols-5 gap-2">
                   {COLOR_OPTIONS.map(color => (
                     <button
                       key={color.value}
                       type="button"
                       onClick={() => handleChange('color', color.value)}
-                      className={`${color.value} ${color.textColor} h-10 rounded-lg flex items-center justify-center text-xs font-medium ${
-                        formData.color === color.value ? 'ring-4 ring-blue-500' : ''
+                      className={`${color.value} ${color.textColor} h-12 rounded-lg flex items-center justify-center text-lg font-bold transition-all ${
+                        formData.color === color.value ? 'ring-4 ring-blue-500 scale-105' : 'hover:scale-105'
                       }`}
                       title={color.name}
                     >
@@ -270,6 +270,11 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                     </button>
                   ))}
                 </div>
+                {formData.color && (
+                  <p className="text-sm mt-2 text-center opacity-75">
+                    เลือก: {COLOR_OPTIONS.find(c => c.value === formData.color)?.name}
+                  </p>
+                )}
               </div>
 
               {/* Submit Buttons */}
