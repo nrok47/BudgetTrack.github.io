@@ -28,7 +28,31 @@ function doGet(e) {
 // รับ POST request สำหรับบันทึกข้อมูล
 function doPost(e) {
   try {
-    const data = JSON.parse(e.postData.contents);
+    let data;
+    
+    // Handle both JSON and FormData
+    if (e.postData && e.postData.contents) {
+      try {
+        data = JSON.parse(e.postData.contents);
+      } catch (err) {
+        // If JSON parse fails, try to get from parameter (FormData)
+        if (e.parameter && e.parameter.projects) {
+          data = {
+            action: e.parameter.action || 'saveProjects',
+            projects: JSON.parse(e.parameter.projects)
+          };
+        } else {
+          throw new Error('Invalid data format');
+        }
+      }
+    } else if (e.parameter && e.parameter.projects) {
+      data = {
+        action: e.parameter.action || 'saveProjects',
+        projects: JSON.parse(e.parameter.projects)
+      };
+    } else {
+      throw new Error('No data received');
+    }
     
     if (data.action === 'saveProjects') {
       return saveProjects(data);

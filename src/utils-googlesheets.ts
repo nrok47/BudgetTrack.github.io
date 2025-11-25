@@ -35,15 +35,15 @@ export const loadFromGoogleSheets = async (): Promise<Project[]> => {
  */
 export const saveToGoogleSheets = async (projects: Project[]): Promise<boolean> => {
   try {
-    // Use GET with data as URL parameter to bypass CORS preflight
-    const params = new URLSearchParams({
-      action: 'saveProjects',
-      data: JSON.stringify(projects)
-    });
+    // Use FormData to send as form POST (works with no-cors)
+    const formData = new FormData();
+    formData.append('action', 'saveProjects');
+    formData.append('projects', JSON.stringify(projects));
     
-    await fetch(`${GOOGLE_SHEETS_API}?${params.toString()}`, {
-      method: 'GET',
-      redirect: 'follow',
+    await fetch(GOOGLE_SHEETS_API, {
+      method: 'POST',
+      mode: 'no-cors',
+      body: formData,
     });
     
     // Save to localStorage as backup
