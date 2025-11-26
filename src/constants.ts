@@ -31,10 +31,11 @@ export const PROJECT_GROUPS = [
   'กลุ่มสื่อสารประชาสัมพันธ์',
   'กลุ่มจัดการความรู้ วิจัย',
   'กลุ่ม Training Center',
-  'สำนักงานเลขานุการ'
+  'สำนักงานเลขานุการ',
+  'โครงการพระราชดำริฯ'
 ];
 
-export const PROJECT_STATUSES = ['ยังไม่เริ่ม', 'กำลังดำเนินการ', 'เสร็จสิ้น'] as const;
+export const PROJECT_STATUSES = ['ยังไม่เริ่ม', 'กำลังดำเนินการ', 'เสร็จสิ้น', 'เสนอโครงการ', 'ขออนุมัติดำเนินกิจกรรม', 'ยื่นยืมเงิน', 'ยื่นบันทึกกับพัสดุ', 'เบิกจ่ายแล้ว'] as const;
 
 export const COLOR_OPTIONS = [
   { name: 'น้ำเงิน', value: 'bg-blue-600', textColor: 'text-white' },
