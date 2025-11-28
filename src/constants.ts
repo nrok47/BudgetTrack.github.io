@@ -32,7 +32,8 @@ export const PROJECT_GROUPS = [
   'กลุ่มจัดการความรู้ วิจัย',
   'กลุ่ม Training Center',
   'สำนักงานเลขานุการ',
-  'โครงการพระราชดำริฯ'
+  'โครงการพระราชดำริฯ',
+  'Healthy Workplace'
 ];
 
 export const PROJECT_STATUSES = [ 'เสนอโครงการ', 'ขออนุมัติดำเนินกิจกรรม', 'ยื่นยืมเงิน', 'ยื่นบันทึกกับพัสดุ', 'เบิกจ่ายแล้ว', 'ยังไม่ดำเนินการ', 'ขอเลื่อนแผน','ยังไม่เริ่ม','เสร็จสิ้น'] as const;
@@ -57,7 +58,7 @@ export const COLOR_OPTIONS = [
 
 // Cumulative target percentages for each month (Oct to Sep)
 export const CUMULATIVE_TARGETS = [
-  11, 23, 36, 47, 53, 61, 68, 75, 82, 90, 100, 100
+  8, 20, 33, 41, 47, 55, 62, 69, 76, 84, 94, 100
 ];
 
 export const getCurrentFiscalYear = (): { startYear: number; endYear: number } => {
